@@ -340,15 +340,16 @@ function search(st, depth, alpha, beta, ply, ctx) {
   if (!any) return check ? -MATE + ply : 0;                      // 체크메이트는 빨리 당할수록 나쁘고, 스테일메이트는 0
   return best;
 }
-// level 'easy': 2수 앞까지 보되 30% 는 아무 수나 둔다 / 'hard': 시간(기본 700ms) 안에서 깊이를 늘려 가며 본다 (최대 8수)
+// level 'easy': 2수 앞까지 보되 30% 는 아무 수나 둔다 / 'hard': 시간(기본 700ms) 안에서 깊이를 늘려 가며 본다 (최대 HARD_DEPTH=4수, 사람이 이길 만하게 예전 8수에서 낮춤)
 // opts.depth 가 있으면 시간 대신 그 깊이로 고정 (시험용)
+const HARD_DEPTH = 4;
 function aiPick(st, level, rand = Math.random, opts = {}) {
   const moves = legal(st);
   if (!moves.length) return null;
   if (moves.length === 1) return ext(moves[0]);
   if (level === 'easy' && rand() < 0.3) return ext(moves[Math.floor(rand() * moves.length)]);
   const work = clone(st);
-  const maxDepth = opts.depth || (level === 'hard' ? 8 : 2);
+  const maxDepth = opts.depth || (level === 'hard' ? HARD_DEPTH : 2);
   const budget = opts.depth ? 0 : level === 'hard' ? (opts.ms || 700) : 0;
   const ctx = { nodes: 0, stop: false, deadline: 0, best: moves[0], pv: 0 };
   const startAt = Date.now();
